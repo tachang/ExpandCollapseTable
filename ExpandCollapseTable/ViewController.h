@@ -10,6 +10,8 @@
 
 @interface ViewController : UIViewController
 
+@property NSMutableArray* expandedSections;
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
 
 @end
 
