@@ -39,34 +39,25 @@ const int NUM_SECTIONS = 10;
 - (void)handleSingleTap:(UITapGestureRecognizer *)recognizer
 {
     NSInteger section = recognizer.view.tag;
-    
-    NSMutableArray *arrayOfIndexPaths = [NSMutableArray array];
-    for (int i=0; i < 5; i++) {
-        NSIndexPath *index = [NSIndexPath indexPathForRow:i inSection:section];
-        [arrayOfIndexPaths addObject:index];
-    }
-    
-    
-    [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:NSNotFound inSection:section] atScrollPosition:UITableViewScrollPositionMiddle animated:YES];
 
+    @synchronized (self.expandedSections[section]) {
+        
+        if (self.expandedSections[section] == [NSNumber numberWithInt:0]) {
+            self.expandedSections[section] = @(1);
+        }
+        else {
+            self.expandedSections[section] = @(0);
+        }
+        
+        
+        [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:section] withRowAnimation:UITableViewRowAnimationAutomatic];
+        
+        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:NSNotFound inSection:section] atScrollPosition:UITableViewScrollPositionMiddle animated:YES];
 
-    if (self.expandedSections[section] == [NSNumber numberWithInt:0]) {
-        self.expandedSections[section] = @(1);
-        
-        
-        [self.tableView beginUpdates];
-        [self.tableView insertRowsAtIndexPaths:arrayOfIndexPaths withRowAnimation: UITableViewRowAnimationFade];
-        [self.tableView endUpdates];
         
     }
-    else {
-        self.expandedSections[section] = @(0);
-        
-        [self.tableView beginUpdates];
-        [self.tableView deleteRowsAtIndexPaths:arrayOfIndexPaths withRowAnimation: UITableViewRowAnimationFade];
-        [self.tableView endUpdates];
-        
-    }
+
+    
 
     NSLog(@"Header tapped: %ld", (long)section);
     
