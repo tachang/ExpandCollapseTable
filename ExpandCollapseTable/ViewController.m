@@ -25,6 +25,9 @@ const int NUM_SECTIONS = 10;
         [self.expandedSections addObject:@(0)];
     }
     
+    self.tableView.estimatedRowHeight = 0;
+    self.tableView.estimatedSectionHeaderHeight = 0;
+    
 }
 
 
@@ -37,16 +40,36 @@ const int NUM_SECTIONS = 10;
 {
     NSInteger section = recognizer.view.tag;
     
+    NSMutableArray *arrayOfIndexPaths = [NSMutableArray array];
+    for (int i=0; i < 5; i++) {
+        NSIndexPath *index = [NSIndexPath indexPathForRow:i inSection:section];
+        [arrayOfIndexPaths addObject:index];
+    }
+    
+    
+    [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:NSNotFound inSection:section] atScrollPosition:UITableViewScrollPositionMiddle animated:YES];
+
+
     if (self.expandedSections[section] == [NSNumber numberWithInt:0]) {
         self.expandedSections[section] = @(1);
+        
+        
+        [self.tableView beginUpdates];
+        [self.tableView insertRowsAtIndexPaths:arrayOfIndexPaths withRowAnimation: UITableViewRowAnimationFade];
+        [self.tableView endUpdates];
+        
     }
     else {
         self.expandedSections[section] = @(0);
+        
+        [self.tableView beginUpdates];
+        [self.tableView deleteRowsAtIndexPaths:arrayOfIndexPaths withRowAnimation: UITableViewRowAnimationFade];
+        [self.tableView endUpdates];
+        
     }
+
     NSLog(@"Header tapped: %ld", (long)section);
     
-    
-    [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:section] withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -75,6 +98,7 @@ const int NUM_SECTIONS = 10;
     label1.text = [NSString stringWithFormat:@"Header #%ld", section];
     [headerView addSubview:label1];
     
+
     UITapGestureRecognizer *singleFingerTap =
     [[UITapGestureRecognizer alloc] initWithTarget:self
                                             action:@selector(handleSingleTap:)];
@@ -87,10 +111,18 @@ const int NUM_SECTIONS = 10;
 - (UITableViewCell *)tableView:(UITableView *)tableView
          cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
+    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     
     cell.textLabel.text = @"Hello Cell";
     return cell;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 43.5;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return 28.0;
 }
 
 @end
